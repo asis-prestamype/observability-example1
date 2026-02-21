@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: koa-observability-api-prod
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongodb:27017/observability
+      - OTEL_SERVICE_NAME=koa-observability-api
+      - OTEL_SERVICE_VERSION=1.0.0
+      - OTEL_EXPORTER_JAEGER_ENDPOINT=http://jaeger:14268/api/traces
+      - OTEL_TRACES_EXPORTER=jaeger
+      - OTEL_LOGS_EXPORTER=console
+      - OTEL_NODE_DISABLED_INSTRUMENTATIONS=""
+      - LOG_LEVEL=info
+    depends_on:
+      - mongodb
+      - jaeger
+    # No volume mounts in production - everything is baked into the image
+    networks:
+      - observability-network
+    restart: unless-stopped
+    # Production-specific resource constraints
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb-prod
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: observability
+    volumes:
+      - mongodb_data:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - observability-network
+    # Production-specific resource constraints
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.50
+    container_name: jaeger-prod
+    restart: unless-stopped
+    ports:
+      - "16686:16686"  # Jaeger UI
+      - "14268:14268"  # Jaeger collector
+      - "14250:14250"  # Jaeger gRPC
+      - "6832:6832/udp"  # Jaeger agent
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+    networks:
+      - observability-network
+    # Production-specific resource constraints
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+volumes:
+  mongodb_data:
+
+networks:
+  observability-network:
+    driver: bridge

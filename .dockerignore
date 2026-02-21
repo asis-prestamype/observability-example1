@@ -1,0 +1,89 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage
+.coverage
+.nyc_output
+*.lcov
+
+# Build output (we'll build inside Docker)
+dist
+build
+
+# Environment variables (use Docker environment instead)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore
+
+# Docker files (we're already building with them)
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Logs
+logs
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Testing
+*.test.js
+*.spec.js
+test
+tests
+__tests__
+jest.config.js
+
+# Documentation
+README.md
+docs/
+*.md
+CHANGELOG.md
+LICENSE
+
+# Linting and formatting
+.eslintrc*
+.eslintignore
+.prettierrc*
+.prettierignore
+
+# Other build artifacts
+*.tgz
+*.tar.gz
+.tmp
+temp
+
+# Keep these files that are needed for the build:
+# - package.json (needed for dependencies)
+# - package-lock.json (needed for exact dependency versions)
+# - tsconfig.json (needed for TypeScript compilation)
+# - src/ directory (source code)
