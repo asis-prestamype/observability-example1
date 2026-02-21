@@ -163,6 +163,7 @@ class App {
 
         span.setStatus({ code: 1 }); // OK
       } catch (error) {
+        console.log(">>error", error)
         logger.error('Failed to start server', { error: (error as Error).message });
         span.recordException(error as Error);
         span.setStatus({ code: 2, message: (error as Error).message }); // ERROR

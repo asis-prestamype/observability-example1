@@ -138,7 +138,7 @@ curl -X POST http://localhost:3000/api/users \
   -H "Content-Type: application/json" \
   -d '{
     "name": "John Doe",
-    "email": "john@example.com"
+    "email": "john6@example.com"
   }'
 ```
 

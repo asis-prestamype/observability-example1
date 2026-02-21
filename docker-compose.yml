@@ -7,20 +7,12 @@ services:
       dockerfile: Dockerfile
       target: development
     container_name: koa-observability-api
+    env_file:
+      - .env
     ports:
       - "3000:3000"
-    environment:
-      - NODE_ENV=development
-      - MONGODB_URI=mongodb://mongodb:27017/observability
-      - OTEL_SERVICE_NAME=koa-observability-api
-      - OTEL_SERVICE_VERSION=1.0.0
-      - OTEL_EXPORTER_JAEGER_ENDPOINT=http://jaeger:14268/api/traces
-      - OTEL_TRACES_EXPORTER=jaeger
-      - OTEL_LOGS_EXPORTER=console
-      - OTEL_NODE_DISABLED_INSTRUMENTATIONS=""
-      - LOG_LEVEL=debug
     depends_on:
-      - mongodb
+      - mongodb2
       - jaeger
     volumes:
       # Mount source code for hot reloading
@@ -35,15 +27,13 @@ services:
       - observability-network
     restart: unless-stopped
 
-  mongodb:
-    image: mongo:7.0
+  mongodb2:
+    image: mongo:7.0.0
     container_name: mongodb
     restart: unless-stopped
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: password
       MONGO_INITDB_DATABASE: observability
     volumes:
       - mongodb_data:/data/db
@@ -57,9 +47,8 @@ services:
     restart: unless-stopped
     ports:
       - "16686:16686"  # Jaeger UI
-      - "14268:14268"  # Jaeger collector
-      - "14250:14250"  # Jaeger gRPC
-      - "6832:6832/udp"  # Jaeger agent
+      - "4318:4318"    # OTLP HTTP receiver
+      - "4317:4317"    # OTLP gRPC receiver
     environment:
       - COLLECTOR_OTLP_ENABLED=true
       - COLLECTOR_ZIPKIN_HOST_PORT=:9411
